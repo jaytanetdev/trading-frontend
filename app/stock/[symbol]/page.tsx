@@ -16,7 +16,6 @@ import { SmartMoneyPanel } from "@/components/smart-money-panel";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const revalidate = 3600;
 
 function getBackendUrl() {
   const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -26,7 +25,6 @@ function getBackendUrl() {
 
 async function fetchStockFromBackend(symbol: string): Promise<StockResponse> {
   const res = await fetch(`${getBackendUrl()}/stock/${symbol}`, {
-    next: { revalidate: 3600 },
   });
   if (!res.ok) throw new Error(`Stock not found: ${symbol}`);
   return res.json();
@@ -37,7 +35,6 @@ async function fetchOverviewFromBackend(
 ): Promise<CompanyOverview | null> {
   try {
     const res = await fetch(`${getBackendUrl()}/stock/${symbol}/overview`, {
-      next: { revalidate: 86400 },
     });
     if (!res.ok) return null;
     return res.json();
