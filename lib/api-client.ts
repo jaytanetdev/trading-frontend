@@ -1,7 +1,13 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+function resolveApiUrl(raw: string | undefined): string {
+  const url = raw ?? 'http://localhost:3001';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `https://${url}`;
+}
+
+const API_URL = resolveApiUrl(process.env.NEXT_PUBLIC_API_URL);
 
 export const apiClient = axios.create({
   baseURL: API_URL,
