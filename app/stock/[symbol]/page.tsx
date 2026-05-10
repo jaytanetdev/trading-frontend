@@ -98,7 +98,11 @@ export default async function StockPage({
   const { symbol: raw } = await params;
   const symbol = raw.toUpperCase();
 
-  let candles, quote, overview, analysis, error: string | null = null;
+  let candles: import("@/types/stock").Candle[] | undefined;
+  let quote: import("@/types/stock").Quote | undefined;
+  let overview: import("@/types/stock").CompanyOverview | null = null;
+  let analysis: import("@/types/stock").StockAnalysis | null = null;
+  let error: string | null = null;
   try {
     const [stockData, ov] = await Promise.all([
       fetchStockFromBackend(symbol),
