@@ -2,9 +2,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getDailyCandles, getOverview, getQuote } from "@/lib/yahoo-finance";
-import { analyzeStock } from "@/lib/analysis";
 import { detectSmartMoney } from "@/lib/smart-money";
+import type { StockResponse } from "@/lib/services/stock.service";
+import type { CompanyOverview } from "@/types/stock";
 import { ChartSection } from "@/components/chart-section";
 import { QuoteHeader } from "@/components/quote-header";
 import { AnalysisCard, IndicatorTable } from "@/components/analysis-card";
@@ -18,6 +18,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const revalidate = 3600;
 
+function getBackendUrl() {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+  const url = raw.startsWith("http") ? raw : `https://${raw}`;
+  return url.replace(/\/$/, "");
+}
+
+async function fetchStockFromBackend(symbol: string): Promise<StockResponse> {
+  const res = await fetch(`${getBackendUrl()}/stock/${symbol}`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) throw new Error(`Stock not found: ${symbol}`);
+  return res.json();
+}
+
+async function fetchOverviewFromBackend(
+  symbol: string
+): Promise<CompanyOverview | null> {
+  try {
+    const res = await fetch(`${getBackendUrl()}/stock/${symbol}/overview`, {
+      next: { revalidate: 86400 },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -27,11 +55,12 @@ export async function generateMetadata({
   const symbol = raw.toUpperCase();
 
   try {
-    const [quote, overview] = await Promise.all([
-      getQuote(symbol),
-      getOverview(symbol).catch(() => null),
+    const [stockData, overview] = await Promise.all([
+      fetchStockFromBackend(symbol).catch(() => null),
+      fetchOverviewFromBackend(symbol),
     ]);
 
+    const quote = stockData?.quote;
     const name = overview?.name ?? symbol;
     const price = quote?.price ?? 0;
     const changePercent = quote?.changePercent ?? 0;
@@ -69,19 +98,16 @@ export default async function StockPage({
   const { symbol: raw } = await params;
   const symbol = raw.toUpperCase();
 
-  let candles, quote, overview, error: string | null = null;
+  let candles, quote, overview, analysis, error: string | null = null;
   try {
-    [candles, quote] = await Promise.all([
-      getDailyCandles(symbol),
-      getQuote(symbol),
+    const [stockData, ov] = await Promise.all([
+      fetchStockFromBackend(symbol),
+      fetchOverviewFromBackend(symbol),
     ]);
-    // Overview is best-effort: degrade gracefully if Alpha Vantage doesn't
-    // have fundamentals for this ticker (e.g. some ADRs).
-    try {
-      overview = await getOverview(symbol);
-    } catch {
-      overview = null;
-    }
+    candles = stockData.candles;
+    quote = stockData.quote;
+    analysis = stockData.analysis;
+    overview = ov;
   } catch (e) {
     error = e instanceof Error ? e.message : String(e);
   }
@@ -111,9 +137,6 @@ export default async function StockPage({
   }
 
   if (!candles || !candles.length || !quote) notFound();
-
-  const analysis = analyzeStock(candles);
-  if (analysis) analysis.symbol = symbol;
 
   const smartMoney = detectSmartMoney(candles);
 

@@ -106,3 +106,14 @@ export type PrepZone = {
   level: number;
   distancePct: number;
 };
+
+export type NewsItem = {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  summary: string;
+  sentiment: "bullish" | "bearish" | "neutral";
+  sentimentScore: number;
+  banner?: string;
+};

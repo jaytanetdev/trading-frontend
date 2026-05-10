@@ -5,7 +5,7 @@ import { ExternalLink, Newspaper } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { NewsItem } from "@/lib/yahoo-finance";
+import type { NewsItem } from "@/types/stock";
 
 const SENTIMENT_LABEL = {
   bullish: { th: "เชิงบวก", variant: "bull" as const },
