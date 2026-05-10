@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getDailyCandles, getOverview, getQuote } from "@/lib/yahoo-finance";
 import { analyzeStock } from "@/lib/analysis";
 import { detectSmartMoney } from "@/lib/smart-money";
@@ -16,6 +17,49 @@ import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const revalidate = 3600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ symbol: string }>;
+}): Promise<Metadata> {
+  const { symbol: raw } = await params;
+  const symbol = raw.toUpperCase();
+
+  try {
+    const [quote, overview] = await Promise.all([
+      getQuote(symbol),
+      getOverview(symbol).catch(() => null),
+    ]);
+
+    const name = overview?.name ?? symbol;
+    const price = quote?.price ?? 0;
+    const changePercent = quote?.changePercent ?? 0;
+    const sign = changePercent >= 0 ? "+" : "";
+    const priceStr = formatCurrency(price);
+    const changeStr = `${sign}${changePercent.toFixed(2)}%`;
+
+    return {
+      title: `${symbol} ${priceStr} (${changeStr})`,
+      description: `วิเคราะห์หุ้น ${name} (${symbol}) แนวรับ/แนวต้าน จุดเข้าซื้อ Stop Loss Smart Money Real-time`,
+      openGraph: {
+        title: `${symbol} ${priceStr} (${changeStr}) | JTL Stock`,
+        description: `วิเคราะห์หุ้น ${name} — แนวรับ/แนวต้าน, จุดเข้าซื้อ, Stop Loss, เป้าทำกำไร, Smart Money`,
+      },
+      alternates: {
+        canonical: `/stock/${symbol}`,
+      },
+    };
+  } catch {
+    return {
+      title: `${symbol} — วิเคราะห์หุ้น`,
+      description: `วิเคราะห์หุ้น ${symbol} แนวรับแนวต้าน Real-time`,
+      alternates: {
+        canonical: `/stock/${symbol}`,
+      },
+    };
+  }
+}
 
 export default async function StockPage({
   params,
