@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl *)",
+      "Bash(grep -E \"\\\\.d\\\\.ts$\")",
+      "Bash(grep -v \"\\\\.map$\")",
+      "Bash(npx next *)",
+      "mcp__plugin_desktop-commander_desktop-commander__write_pdf",
+      "Bash(npm --version)",
+      "Bash(npx *)",
+      "Bash(node -e \"const { PrismaClient } = require\\('@prisma/client'\\); console.log\\(typeof PrismaClient\\);\")",
+      "Bash(node -e \"const { PrismaClient } = require\\('@prisma/client'\\); const c = new PrismaClient\\(\\); console.log\\(JSON.stringify\\(Object.keys\\(c\\)\\)\\);\")",
+      "Bash(node -e \"const { PrismaClient } = require\\('@prisma/client'\\); const c = new PrismaClient\\({ adapter: null }\\); \")",
+      "Bash(npm test *)",
+      "Bash(node -e ' *)",
+      "Bash(n\")",
+      "Bash(New-Item -ItemType File -Path \"C:\\\\Users\\\\tanet\\\\Desktop\\\\project\\\\trading\\\\.env.local\" -Value \"NEXT_PUBLIC_API_URL=http://localhost:3001`n\")",
+      "Bash(node -e \"const j = require\\('jest'\\); console.log\\(j\\)\")",
+      "Bash(node -e \"const {defineConfig} = require\\('jest'\\); const c = defineConfig\\({setupFilesAfterEach: []}\\); console.log\\(Object.keys\\(c\\)\\);\")",
+      "Bash(node -e \"const {defineConfig} = require\\('jest'\\); const c = defineConfig\\({setupFilesAfterFramework: ['./setup.ts']}\\); console.log\\(JSON.stringify\\(c\\)\\);\")",
+      "Bash(node -e \"const {defineConfig} = require\\('./node_modules/jest'\\); const c = defineConfig\\({setupFilesAfterFramework: ['./setup.ts']}\\); console.log\\(JSON.stringify\\(c\\)\\);\")",
+      "Bash(node -e \"const j = require\\('./node_modules/jest-circus'\\); console.log\\(j\\)\")",
+      "Bash(docker compose *)"
+    ]
+  }
+}
