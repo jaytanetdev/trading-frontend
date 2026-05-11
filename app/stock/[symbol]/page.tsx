@@ -25,6 +25,7 @@ function getBackendUrl() {
 
 async function fetchStockFromBackend(symbol: string): Promise<StockResponse> {
   const res = await fetch(`${getBackendUrl()}/stock/${symbol}`, {
+    next: { revalidate: 60 },
   });
   if (!res.ok) throw new Error(`Stock not found: ${symbol}`);
   return res.json();
@@ -35,6 +36,7 @@ async function fetchOverviewFromBackend(
 ): Promise<CompanyOverview | null> {
   try {
     const res = await fetch(`${getBackendUrl()}/stock/${symbol}/overview`, {
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return null;
     return res.json();
